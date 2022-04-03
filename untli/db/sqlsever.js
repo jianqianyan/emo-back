@@ -25,7 +25,6 @@ var db = async (sqlstr) =>{
                 reject(err);
             }
             let text = JSON.parse(result);
-            console.log(text);
             dbConfig = text;
             resolve(result);
         })

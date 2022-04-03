@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var db = require('../db/db')
+var db = require('../untli/db/db')
 /* GET hello page. */
 router.get('/',async function (req, res, next) {
   let data = {data:""};

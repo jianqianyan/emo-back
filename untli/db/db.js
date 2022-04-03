@@ -1,6 +1,6 @@
 var db = require(`./sqlsever`);
 
-// 用户登录
+// 用户登录 根据电话号码查找
 async function login(outside , phone) {
     let sqlstr = `select * from users where phone='`+phone+`'`;
     var data = {};

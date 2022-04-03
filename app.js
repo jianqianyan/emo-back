@@ -6,7 +6,8 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var helloRouter = require('./routes/hello')
+var helloRouter = require('./routes/hello');
+var loginRouter = require('./routes/login')
 
 var app = express();
 
@@ -20,7 +21,22 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// 不需要登录的路由
 app.use('/', indexRouter);
+app.use('/login' , loginRouter);
+
+// token 解析
+const parseJwt = require('express-jwt');
+const SECRET_KEY = 'jianqianyan';
+app.use(
+  parseJwt({
+      secret: SECRET_KEY,
+      algorithms: ['HS256'], // 使用何种加密算法解析
+  })
+    .unless({ path: [] })
+)
+
+// 需要登录的路由
 app.use('/users', usersRouter);
 app.use('/hello' , helloRouter);
 
@@ -28,6 +44,10 @@ app.use('/hello' , helloRouter);
 app.use(function(req, res, next) {
   next(createError(404));
 });
+
+// 处理token不合法或过期 
+const errorhandler = require('./middleware/errorhandler')
+app.use(errorhandler)
 
 // error handler
 app.use(function(err, req, res, next) {
