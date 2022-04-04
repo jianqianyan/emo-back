@@ -15,7 +15,6 @@ async function find(outside, message) {
     var data = {};
     try{
         data = await db(sqlstr);
-        console.log(data);
     }
     catch(err){
         console.log(err);
@@ -36,13 +35,8 @@ async function add(outside , message){
     })
     sqlstr = sqlstr + sql1 + `) values(` + sql2 + `);`;
     var data = 0;
-    try{
-        data = await db(sqlstr);
-    }
-    catch(err){
-        console.log(err);
-        data = -1;
-    }
+    data = await db(sqlstr);
+    // console.log(data);
     return data;
 }
 
