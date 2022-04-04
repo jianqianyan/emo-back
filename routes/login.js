@@ -13,7 +13,7 @@ router.get('/' , async function (req , res , next) {
   let retunmes = {};
   // 尝试查找是否有users
   try{
-    user = await db.login("users" , phone);
+    user = await db.find("users" , {"phone" : phone});
   }
   catch(err){
     console.log(err.message);
@@ -44,4 +44,11 @@ router.get('/' , async function (req , res , next) {
   res.send({status: 200,message:retunmes,token});
 })
 
+// 注册
+router.post('/register' , async function(req , res , next){
+  let message = req.body;
+  console.log(message);
+  db.add("users" , message);
+  res.send(message);
+})
 module.exports = router;

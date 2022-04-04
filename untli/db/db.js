@@ -1,26 +1,50 @@
 var db = require(`./sqlsever`);
 
-// 用户登录 根据电话号码查找
-async function login(outside , phone) {
-    let sqlstr = `select * from users where phone='`+phone+`'`;
+// 从oudide里根据message查找
+async function find(outside, message) {
+    let sqlstr = `select * from ` + outside;
+    if(message){
+        sqlstr += ` where `
+        let sql1 = `` , sql2 = ``;
+        Object.keys(message).forEach((key) => {
+            if(sql1 != ``) sql1 += ` and `;
+            sql1 = sql1 + key + `='` + message[key] + `'`;
+        })
+        sqlstr = sqlstr + sql1;
+    }
     var data = {};
-    data = await db(sqlstr);
+    try{
+        data = await db(sqlstr);
+        console.log(data);
+    }
+    catch(err){
+        console.log(err);
+    }
     return data;
 }
 
-
-async function find(outside, name) {
-    let sqlstr = ``
-    if (name) {
-        sqlstr = `select * from ` + outside + ` where ` + outside + `.name='` + name + `'`;
-    } else {
-        sqlstr = `select * from ` + outside;
+// 插入数据
+async function add(outside , message){
+    // 拼接字符串
+    let sqlstr = `insert into ` + outside + `(`;
+    let sql1 = `` , sql2 = ``;
+    Object.keys(message).forEach((key) => {
+        if(sql1 != ``)sql1 += `,`;
+        if(sql2 != ``)sql2 += `,`;
+        sql1 = sql1 +  key ;
+        sql2 = sql2 + `'` + message[key] + `'`;
+    })
+    sqlstr = sqlstr + sql1 + `) values(` + sql2 + `);`;
+    var data = 0;
+    try{
+        data = await db(sqlstr);
     }
-    // console.log(sqlstr)
-    var data = {};
-    data = await db(sqlstr);
+    catch(err){
+        console.log(err);
+        data = -1;
+    }
     return data;
 }
 
 module.exports.find = find
-module.exports.login = login
+module.exports.add = add
