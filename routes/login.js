@@ -7,10 +7,8 @@ var setToken = require('../untli/token/token')
 // 登录成功返回用户id,账号不存在返回-1,密码错误返回-2,登录失败返回-3
 router.get('/', async function (req, res, next) {
   let message = req.query;
-  let phone = message.phone;
-  let password = message.password;
-  let user = {};
-  let retunmes = {};
+  let phone = message.phone , password = message.password;
+  let user = {} , retunmes = {};
   // 尝试查找是否有users
   try {
     user = await db.find("users", {
