@@ -6,7 +6,6 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var helloRouter = require('./routes/hello');
 var loginRouter = require('./routes/login')
 var mailRouter = require('./routes/mail');
 
@@ -73,7 +72,6 @@ app.use(
 
 // 需要登录的路由
 app.use('/users', usersRouter);
-app.use('/hello', helloRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
