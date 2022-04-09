@@ -1,4 +1,5 @@
 var mssql = require(`mssql`);
+var config = require('../../settingConfig/sqlConfig')
 const fs = require('fs');
 var dbConfig = {
     user: ``, //用户名
@@ -16,32 +17,19 @@ var dbConfig = {
         trustServerCertificate: true,
     }
 }
- 
-var db = async (sqlstr) =>{
-    return new Promise((resolve , reject) => {
-        fs.readFile(__dirname + '/dbms.json','utf-8' , (err , result) => {
-            if(err){
-                console.log(err);
-                reject(err);
-            }
-            let text = JSON.parse(result);
-            dbConfig = text;
-            resolve(result);
-        })
-    })
-    .then(async function(data){
-        try{  
-            await mssql.connect(dbConfig);
-            const result = await mssql.query(sqlstr)
-            return result.recordset;
-        }
-        catch(err){
-            // 请求失败
-            console.log(err);
-            if(err.name == "RequestError")
-                return -1;
-            return -2;
-        }
-    })
+
+var db = async (sqlstr) => {
+    dbConfig = config;
+    try {
+        await mssql.connect(dbConfig);
+        const result = await mssql.query(sqlstr)
+        return result.recordset;
+    } catch (err) {
+        // 请求失败
+        console.log(err);
+        if (err.name == "RequestError")
+            return -1;
+        return -2;
+    }
 }
 module.exports = db

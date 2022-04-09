@@ -24,7 +24,7 @@ router.get('/', async function (req, res, next) {
   let user = {},
     retunmes = {};
   retunmes.statue = 200;
-  console.log(img_code);
+  // console.log(img_code);
   if (img_code != req.session.img_code) {
     // 验证验证码是否正确
     retunmes.data = -4;

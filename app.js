@@ -8,6 +8,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var helloRouter = require('./routes/hello');
 var loginRouter = require('./routes/login')
+var mailRouter = require('./routes/mail');
 
 var app = express();
 
@@ -55,6 +56,7 @@ app.all("*", (req, res, next) => {
 // 不需要登录的路由
 app.use('/', indexRouter);
 app.use('/login', loginRouter);
+app.use('/mail' , mailRouter);
 
 // token 解析
 const parseJwt = require('express-jwt');
