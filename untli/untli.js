@@ -1,3 +1,4 @@
+// 将时间转换为sql格式时间
 function getsqlDate(){
     let nowData = new Date();
     let year = nowData.getFullYear();

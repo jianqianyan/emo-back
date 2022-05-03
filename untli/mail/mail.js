@@ -2,6 +2,7 @@
 const nodemailer = require("nodemailer");
 var config = require("../../settingConfig/mailConfig");
 
+// 邮件验证方法
 async function mail(userMail , img_code) {
     try{
       let transporter = nodemailer.createTransport({

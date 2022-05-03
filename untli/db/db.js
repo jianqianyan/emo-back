@@ -1,4 +1,6 @@
-const { del } = require("express/lib/application");
+const {
+    del
+} = require("express/lib/application");
 var db = require(`./sqlsever`);
 
 // 从oudide里根据message查找
@@ -42,14 +44,14 @@ async function add(outside, message) {
     return data;
 }
 
-// 更改数据 更改表outside中的target的message数据
+// 更改数据 更改表outside中条件满足target的message数据
 async function update(outside, target, message) {
     let sqlstr = `update ` + outside + ` set `;
     let sql1 = ``,
         sql2 = ``;
     Object.keys(message).forEach((key) => {
         if (sql1 != ``) sql1 += `,`;
-        sql1 = sql1 + key + `='` + message[key] + `'`;
+        sql1 = sql1 + key + `=` + message[key] + ``;
     })
     Object.keys(target).forEach((key) => {
         if (sql2 != ``) sql2 += ` AND `;
@@ -57,15 +59,20 @@ async function update(outside, target, message) {
     })
     sql2 = ` where ` + sql2;
     sqlstr = sqlstr + sql1 + sql2;
-    console.log(sqlstr);
+    // console.log(sqlstr);
+    try {
+        await db(sqlstr);
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 // 删除数据 在表ouside中删除根据message删除数据
-async function delect(outside , message){
+async function delect(outside, message) {
     let sqlstr = `delect from ` + outside + ` where `;
     let sql1 = ``;
     Object.keys(message).forEach((key) => {
-        if(sql1 != ``)  sql1 += ` AND `;
+        if (sql1 != ``) sql1 += ` AND `;
         sql1 = sql1 + key + `=` + message[key] + ``;
     })
     sqlstr = sqlstr + sql1;

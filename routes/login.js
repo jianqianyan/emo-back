@@ -81,7 +81,7 @@ router.post('/register', async function (req, res, next) {
       sqlmessage.phone = message.phone;
       sqlmessage.password = message.password;
       sqlmessage.email = message.email;
-      sqlmessage.sex = "男";
+      sqlmessage.sex = "N";
       sqlmessage.information = "简介";
       sqlmessage.name = message.phone;
       sqlmessage.registe_time = getsqlDate.getsqlDate();

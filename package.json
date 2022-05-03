@@ -18,6 +18,7 @@
     "morgan": "~1.9.1",
     "mssql": "^8.0.2",
     "nodemailer": "^6.7.3",
-    "svg-captcha": "^1.4.0"
+    "svg-captcha": "^1.4.0",
+    "vuex": "^4.0.2"
   }
 }
