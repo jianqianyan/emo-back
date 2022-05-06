@@ -4,38 +4,6 @@ const fs = require('fs');
 const db = require('../untli/db/db');
 const videoCount = require("../service/videoService");
 
-// 获取视频信息
-router.get('/getmessage', async function (req, res, next) {
-    let message = req.query;
-    let video_id = message.video_id;
-    // console.log(video_id);
-    let video = {},
-        retunmes = {};
-    retunmes.statue = 200;
-    try {
-        video = await db.find("videos", {
-            "id": video_id
-        });
-    } catch (err) {
-        console.log(err.message)
-        retunmes.data = -2;
-    };
-    if (video.length == 0) {
-        // 表示没找到
-        retunmes.data = -1;
-    } else {
-        // 包装返回信息
-        // console.log(video[0]);
-        // video.upload_time.toString();
-        video[0].upload_time = video[0].upload_time.toISOString().replace('T', ' ').replace('Z', '');
-        // console.log(video[0].upload_time);
-        retunmes.data = video[0];
-
-
-    }
-    res.send(retunmes);
-})
-
 // 流式传输视频
 router.get('/', async function (req, res, next) {
     let path = req.query.path;

@@ -8,7 +8,9 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var loginRouter = require('./routes/login')
 var mailRouter = require('./routes/mail');
-var video = require('./routes/video')
+var video = require('./routes/video');
+var img_code = require('./routes/imgCode');
+var getVideo = require('./routes/getVideo');
 
 var app = express();
 
@@ -23,8 +25,6 @@ app.use(express.urlencoded({
 }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-
 
 // 使用cookie-session 来存放数据到session中
 var cookieSession = require('cookie-session')
@@ -56,13 +56,15 @@ app.all("*", (req, res, next) => {
 // 不需要登录的路由
 app.use('/', indexRouter);
 app.use('/login', loginRouter);
-app.use('/mail' , mailRouter);
 app.use('/video',video);
 // 静图片
 app.use('/image',express.static(path.join(__dirname , './assets/image')));
-app.use('/users', usersRouter);
 app.use('/user_photo' , express.static(path.join(__dirname , './assets/user_photo')));
+app.use('/img_code' , img_code);
 
+// 接口测试
+var news = require('./routes/new')
+app.use('/news' , news);
 
 // token 解析
 const parseJwt = require('express-jwt');
@@ -78,6 +80,9 @@ app.use(
 )
 
 // 需要登录的路由
+app.use('/mail' , mailRouter);
+app.use('/users', usersRouter);
+app.use('/getVideo' , getVideo);
 
 
 // catch 404 and forward to error handler

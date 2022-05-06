@@ -7,5 +7,12 @@ function getsqlDate(){
     let sqlDate = year + '-' + month + '-' + day ;
     return sqlDate;
 }
+function checkIsNull(obj){
+    if(typeof obj == "undefined"){
+        return true;
+    }
+    return false;
+}
 
 module.exports.getsqlDate = getsqlDate;
+module.exports.checkIsNull = checkIsNull;

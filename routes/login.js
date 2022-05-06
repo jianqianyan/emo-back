@@ -2,101 +2,116 @@ var express = require('express');
 var router = express.Router();
 var db = require('../untli/db/db')
 var setToken = require('../untli/token/token')
-const svgCaptcha = require("svg-captcha")
-var getsqlDate = require('../untli/untli')
+var untli = require('../untli/untli')
+const returnMessage = require("../model/returnMessage")
+const save = require("../untli/saveMessage/saveMessage")
 
-// 验证码
-router.get('/img_code', async (req, res) => {
-  const captcha = svgCaptcha.create({
-    noise: 3,
-  });
-  req.session.img_code = captcha.text;
-  res.type('svg');
-  res.send(captcha.data);
-});
 
-// 登录验证
-// 登录成功返回用户id,账号不存在返回-1,密码错误返回-2,登录失败返回-3,验证码错误返回-4
-router.get('/', async function (req, res, next) {
-  let message = req.query;
-  let phone = message.phone,
-    password = message.password,
-    img_code = message.img_code;
-  let user = {},
-    retunmes = {};
-  retunmes.statue = 200;
-  // console.log(img_code);
-  if (img_code != req.session.img_code) {
-    // 验证验证码是否正确
-    retunmes.data = -4;
+// 登录接口
+router.post('/', async function (req, res, next) {
+  let login_message = req.body;
+  let user = [];
+  var return_mes = new returnMessage();
+  // 不能为空
+  if(untli.checkIsNull(login_message.phone) || untli.checkIsNull(login_message.password) || untli.checkIsNull(login_message.img_code)){
+    return_mes.state = -1;
+    return_mes.data.cause = "用户号码,密码，验证码不能为空";
+    res.send(return_mes);
+    return ;
+  }
+  // 验证验证码是否正确
+  if (login_message.img_code != req.session.img_code) {
+    return_mes.state = -1;
+    return_mes.data.cause = "验证码错误";
   } else {
-    // 尝试查找是否有users
+    // 尝试查找是否有user
     try {
       user = await db.find("users", {
-        "phone": phone
+        "phone": login_message.phone
       });
     } catch (err) {
-      console.log(err.message);
-      retunmes.data = -3;
+      save.save(err.message, "login");
+      return_mes.state = -3;
     }
-    // 存在用户
-    let token;
-    if (user.length == 0) {
-      retunmes.data = -1;
+    if (return_mes.state != -3 && user.length == 0) {
+      // 没有找到
+      return_mes.state = -1;
+      return_mes.data.cause = "用户不存在";
     } else {
-      if (String(user[0].password) == String(password)) {
-        // 登录成功
-        retunmes.data = 1;
-        retunmes.userid = user[0].id;
-
-        // 设置token
-        token = setToken(retunmes);
-        retunmes.token = token;
+      // 验证密码是否正确
+      if (String(user[0].password) == String(login_message.password)) {
+        return_mes.state = 200;
+        return_mes.data.message.user_id = user[0].id;
+        // 颁发token
+        let token = setToken(return_mes.data);
+        return_mes.data.token = token;
       } else {
-        retunmes.data = -2;
+        return_mes.state = -1;
+        return_mes.data.cause = "密码错误";
       }
     }
   }
-
-  res.send(retunmes);
+  res.send(return_mes);
 })
+
 
 // 注册
-// 注册成功返回1，手机号码已被注册返回-1，注册失败返回-3，验证码错误返回-4，
 router.post('/register', async function (req, res, next) {
-  let message = req.query;
-  let retunmes = {};
-  retunmes.status = 200;
-  if (message.img_code != req.session.img_code) {
-    //判断验证码是否正确
-    retunmes.data = -4;
+  let regis_message = req.body;
+  var return_mes = new returnMessage();
+  let user = [];
+  // 不能为空
+  if(untli.checkIsNull(regis_message.phone) || untli.checkIsNull(regis_message.password) || untli.checkIsNull(regis_message.img_code)){
+    return_mes.state = -1;
+    return_mes.data.cause = "用户号码,密码，验证码不能为空";
+    res.send(return_mes);
+    return ;
+  }
+  // 验证验证码是否正确
+  if (regis_message.img_code != req.session.img_code) {
+    return_mes.state = -1;
+    return_mes.cause = "验证码错误";
   } else {
-    // 判断是否已被注册
-    let data = await db.find("users", {
-      "phone": message.phone
-    });
-    if (data.length == 0) {
-      // 拼接注册信息
-      let sqlmessage = {};
-      sqlmessage.phone = message.phone;
-      sqlmessage.password = message.password;
-      sqlmessage.email = message.email;
-      sqlmessage.sex = "N";
-      sqlmessage.information = "简介";
-      sqlmessage.name = message.phone;
-      sqlmessage.registe_time = getsqlDate.getsqlDate();
-      let data = await db.add("users", sqlmessage);
-      if (data == "-1") {
-        retunmes.data = -3;
+    try {
+      user = await db.find("users", {
+        "phone": regis_message.phone,
+      })
+    } catch (err) {
+      return_mes.state = -3;
+      save.save(err.message, "register");
+    }
+    // 判断号码是否被注册
+    if (return_mes.state != -3 && user.length == 0) {
+      // 拼接信息
+      let sql_message = {
+        phone: regis_message.phone,
+        password: regis_message.password,
+        email: regis_message.email,
+        sex: "N",
+        information: "简介",
+        name: regis_message.phone,
+        registe_time: untli.getsqlDate()
+      }
+      let sql_res;
+      try {
+        sql_res = await db.add("users", sql_message);
+      } catch (err) {
+        save.save(err.message);
+        return_mes.state = -3;
+      }
+      if (sql_res == "-1") {
+        return_mes.state = -3;
       } else {
-        retunmes.data = 1;
+        return_mes.state = 200;
+        return_mes.data.message.info = "注册成功";
       }
     } else {
-      retunmes.data = -1;
+      return_mes.state = -1;
+      return_mes.cause = "该号码已被注册";
     }
   }
-  retunmes.status = 200;
-  res.send(retunmes);
+  res.send(return_mes);
 })
+
 
 module.exports = router;
