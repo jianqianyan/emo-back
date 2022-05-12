@@ -11,6 +11,7 @@ var mailRouter = require('./routes/mail');
 var video = require('./routes/video');
 var img_code = require('./routes/imgCode');
 var getVideo = require('./routes/getVideo');
+var search = require('./routes/search')
 
 var app = express();
 

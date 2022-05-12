@@ -1,6 +1,8 @@
 // token解析错误中间件
+var save = require("../untli/saveMessage/saveMessage");
 function errorHandler(err, req, res, next) {
-    console.log(err, err.name);
+    // console.log(err, err.name);
+    save.save(err + err.name , "errorhandler");
     let code = 500;
     let message = 'Internal Server Error';
     // token解析的错误

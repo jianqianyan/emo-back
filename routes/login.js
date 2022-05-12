@@ -53,7 +53,7 @@ router.post('/', async function (req, res, next) {
   }
   res.send(return_mes);
 })
-
+ 
 
 // 注册
 router.post('/register', async function (req, res, next) {
@@ -107,7 +107,7 @@ router.post('/register', async function (req, res, next) {
       }
     } else {
       return_mes.state = -1;
-      return_mes.cause = "该号码已被注册";
+      return_mes.data.cause = "该号码已被注册";
     }
   }
   res.send(return_mes);

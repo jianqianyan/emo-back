@@ -7,27 +7,15 @@ const returnMessage = require("../model/returnMessage")
 var untli = require('../untli/untli')
 
 router.get('/', async function (req, res, next) {
-    let video_message = req.query;
-    let video = [];
-    var return_mes = new returnMessage();
-    // 尝试查找video
-    try {
-        video = await db.find("videos", {
-            "id": video_message.id,
-        })
-    } catch (err) {
-        save.save(err);
-        return_mes.state = -3;
-    }
-    if (video.length == 0) {
-        return_mes.state = -1;
-        return_mes.data.cause = "视频不存在";
-    } else {
-        return_mes.state = 200;
-        return_mes.data.message = video[0];
-        // 封装返回信息
-        return_mes.data.message.upload_time = return_mes.data.message.upload_time.toISOString().replace('T' , ' ').replace('Z' , '');
-    }
+    let return_mes = new returnMessage();
+
+    // permission verification can be added here
+    
+    // process infomation
+    let search_message = req.query;
+    let condition = JSON.parse(search_message.condition);
+    let data = await db.fuzzyfind(search_message.table , condition);
+    return_mes.data.message = data;
     res.send(return_mes);
 })
 module.exports = router;

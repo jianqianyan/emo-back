@@ -5,6 +5,7 @@ const save = require("../untli/saveMessage/saveMessage")
 const returnMessage = require("../model/returnMessage")
 const untli = require("../untli/untli.js")
 
+// 获取视频信息
 router.get('/', async function (req, res, next) {
     let video_message = req.query;
     let video = [];

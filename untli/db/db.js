@@ -1,15 +1,12 @@
-const {
-    del
-} = require("express/lib/application");
 var db = require(`./sqlsever`);
+const save = require("../saveMessage/saveMessage")
 
-// 从oudide里根据message查找
+// 从outside里根据message精确查找
 async function find(outside, message) {
     let sqlstr = `select * from ` + outside;
     if (message) {
         sqlstr += ` where `
-        let sql1 = ``,
-            sql2 = ``;
+        let sql1 = ``;
         Object.keys(message).forEach((key) => {
             if (sql1 != ``) sql1 += ` and `;
             sql1 = sql1 + key + `='` + message[key] + `'`;
@@ -20,7 +17,28 @@ async function find(outside, message) {
     try {
         data = await db(sqlstr);
     } catch (err) {
-        console.log(err);
+        save.save(err.message, "db");
+    }
+    return data;
+}
+
+// Fuzzy search from outside according to message
+async function fuzzyfind(outside, message) {
+    let sqlstr = `select * from ` + outside;
+    if (message && Object.keys(message).length != 0) {
+        sqlstr += ` where `;
+        let sql1 = ``;
+        Object.keys(message).forEach((key) => {
+            if (sql1 != ``) sql1 += ` and `;
+            sql1 = sql1 + key + ` like '%` + message[key] + `%'`;
+        })
+        sqlstr = sqlstr + sql1;
+    }
+    var data = {};
+    try {
+        data = await db(sqlstr);
+    }catch(err){
+        save.save(err.message , "db");
     }
     return data;
 }
@@ -63,7 +81,7 @@ async function update(outside, target, message) {
     try {
         await db(sqlstr);
     } catch (err) {
-        console.log(err);
+        save.save(err.message, "db");
     }
 }
 
@@ -83,3 +101,4 @@ module.exports.find = find
 module.exports.add = add
 module.exports.update = update
 module.exports.delect = delect
+module.exports.fuzzyfind = fuzzyfind
