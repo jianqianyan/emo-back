@@ -57,15 +57,16 @@ app.all("*", (req, res, next) => {
 // 不需要登录的路由
 app.use('/', indexRouter);
 app.use('/login', loginRouter);
-app.use('/video',video);
+app.use('/video', video);
+app.use('/search', search);
 // 静图片
-app.use('/image',express.static(path.join(__dirname , './assets/image')));
-app.use('/user_photo' , express.static(path.join(__dirname , './assets/user_photo')));
-app.use('/img_code' , img_code);
+app.use('/image', express.static(path.join(__dirname, './assets/image')));
+app.use('/user_photo', express.static(path.join(__dirname, './assets/user_photo')));
+app.use('/img_code', img_code);
 
 // 接口测试
 var news = require('./routes/new')
-app.use('/news' , news);
+app.use('/news', news);
 
 // token 解析
 const parseJwt = require('express-jwt');
@@ -81,9 +82,9 @@ app.use(
 )
 
 // 需要登录的路由
-app.use('/mail' , mailRouter);
+app.use('/mail', mailRouter);
 app.use('/users', usersRouter);
-app.use('/getVideo' , getVideo);
+app.use('/getVideo', getVideo);
 
 
 // catch 404 and forward to error handler

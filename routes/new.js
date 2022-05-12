@@ -14,7 +14,21 @@ router.get('/', async function (req, res, next) {
     // process infomation
     let search_message = req.query;
     let condition = JSON.parse(search_message.condition);
-    let data = await db.fuzzyfind(search_message.table , condition);
+    let begin = 0 , pageSize = 10;
+    
+    // process paging
+    if(search_message.pageSize)
+        pageSize = Number(search_message.pageSize);
+    if(search_message.page)
+        begin = (Number(search_message.page) - 1) * pageSize;
+    
+    // query data base
+    let data;
+    try{
+        data = await db.fuzzyfind(search_message.table , condition , begin , pageSize);
+    }catch(err){
+        save.save(err);
+    }
     return_mes.data.message = data;
     res.send(return_mes);
 })

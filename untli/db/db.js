@@ -22,23 +22,29 @@ async function find(outside, message) {
     return data;
 }
 
-// Fuzzy search from outside according to message
-async function fuzzyfind(outside, message) {
+// Fuzzy search from outside according to message , from begin to begin + n
+async function fuzzyfind(outside, message, begin, pageSize) {
     let sqlstr = `select * from ` + outside;
+    let sql1 = ``;
+    sqlstr = `select top ` + pageSize + ` * from ` + outside
     if (message && Object.keys(message).length != 0) {
-        sqlstr += ` where `;
-        let sql1 = ``;
+        sql1 = ` where `;
         Object.keys(message).forEach((key) => {
-            if (sql1 != ``) sql1 += ` and `;
+            if (sql1 != ` where `) sql1 += ` and `;
             sql1 = sql1 + key + ` like '%` + message[key] + `%'`;
         })
-        sqlstr = sqlstr + sql1;
     }
+    sqlstr = sqlstr + sql1;
+    if (!sql1) {
+        sqlstr += ` where`;
+    }
+    sqlstr += ` id not in (select top ` + begin + ` id from ` + outside + sql1 + `)`;
+    // console.log(sqlstr)
     var data = {};
     try {
         data = await db(sqlstr);
-    }catch(err){
-        save.save(err.message , "db");
+    } catch (err) {
+        save.save(err.message, "db");
     }
     return data;
 }
