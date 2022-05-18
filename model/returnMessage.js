@@ -5,6 +5,7 @@ function returnMessage(){
         message: {},
         cause: "",
         token: "",
+        messageNumber: 0,
     }
 }
 returnMessage.prototype = {

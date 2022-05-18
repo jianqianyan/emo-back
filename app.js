@@ -58,7 +58,6 @@ app.all("*", (req, res, next) => {
 app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/video', video);
-app.use('/search', search);
 // 静图片
 app.use('/image', express.static(path.join(__dirname, './assets/image')));
 app.use('/user_photo', express.static(path.join(__dirname, './assets/user_photo')));
@@ -85,7 +84,7 @@ app.use(
 app.use('/mail', mailRouter);
 app.use('/users', usersRouter);
 app.use('/getVideo', getVideo);
-
+app.use('/search', search);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

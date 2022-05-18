@@ -7,26 +7,31 @@ const returnMessage = require("../model/returnMessage")
 const save = require("../untli/saveMessage/saveMessage")
 
 
-// 登录接口
+// user login
 router.post('/', async function (req, res, next) {
   let login_message = req.body;
   let user = [];
   var return_mes = new returnMessage();
-  // 不能为空
+  // password phone img_node can not be null
   if(untli.checkIsNull(login_message.phone) || untli.checkIsNull(login_message.password) || untli.checkIsNull(login_message.img_code)){
     return_mes.state = -1;
     return_mes.data.cause = "用户号码,密码，验证码不能为空";
     res.send(return_mes);
     return ;
   }
-  // 验证验证码是否正确
+  // check img_code
   if (login_message.img_code != req.session.img_code) {
     return_mes.state = -1;
     return_mes.data.cause = "验证码错误";
   } else {
-    // 尝试查找是否有user
+    // try to find user
     try {
-      user = await db.find("users", {
+      // Select target table
+      let outside = "users";
+      if(login_message.type == 2){
+        outside = "admin";
+      }
+      user = await db.find(outside, {
         "phone": login_message.phone
       });
     } catch (err) {
@@ -34,15 +39,15 @@ router.post('/', async function (req, res, next) {
       return_mes.state = -3;
     }
     if (return_mes.state != -3 && user.length == 0) {
-      // 没有找到
+      // no find
       return_mes.state = -1;
       return_mes.data.cause = "用户不存在";
     } else {
-      // 验证密码是否正确
+      // check password
       if (String(user[0].password) == String(login_message.password)) {
         return_mes.state = 200;
-        return_mes.data.message.user_id = user[0].id;
-        // 颁发token
+        return_mes.data.message.id = user[0].id;
+        // token
         let token = setToken(return_mes.data);
         return_mes.data.token = token;
       } else {
@@ -70,7 +75,7 @@ router.post('/register', async function (req, res, next) {
   // 验证验证码是否正确
   if (regis_message.img_code != req.session.img_code) {
     return_mes.state = -1;
-    return_mes.cause = "验证码错误";
+    return_mes.data.cause = "验证码错误";
   } else {
     try {
       user = await db.find("users", {
@@ -113,5 +118,9 @@ router.post('/register', async function (req, res, next) {
   res.send(return_mes);
 })
 
+// admin login
+router.post('/admin' , async function(req , res , next){
+  
+})
 
 module.exports = router;

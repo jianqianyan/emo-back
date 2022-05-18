@@ -2,28 +2,41 @@ var express = require('express');
 var router = express.Router();
 var db = require('../untli/db/db')
 const returnMessage = require("../model/returnMessage")
-const untli = require("../untli/untli")
+const untli = require("../untli/untli");
+const { save } = require('../untli/saveMessage/saveMessage');
 /* GET users listing. */
 
 router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
 
-// 修改用户信息
+// update ueser's message
 router.post('/changeMessage', async function (req, res, next) {
-  // 获取登录信息
-  let userMessage = req.user;
+  // get user's message
+  let userMessage = req.body;
+  let return_mes = new returnMessage();
+  // Processing data
+  if(userMessage.sex == '男'){
+    userMessage.sex = 'N';
+  }
+  else{
+    userMessage.sex = 'W';
+  }
+  if(userMessage.registe_time){
+    delete userMessage.registe_time;
+  }
   let user = {};
-  user.id = userMessage.userid;
-  // 获取需要更改的信息
-  let changeMessage = req.body;
-  let return_mes = {};
-  try {
-    await db.update("users", user, changeMessage);
-    return_mes.message = "更改成功";
-  } catch (err) {
-    console.log(err);
-    return_mes.message = "更改失败";
+  user.id = userMessage.id;
+  delete userMessage.id;
+  // try update
+  try{
+    await db.update("users" , user , userMessage);
+    return_mes.state = 200;
+    return_mes.data.message = "修改成功";
+  }catch(err){
+    save.save(err, "users");
+    return_mes.state = -1;
+    return_mes.data.message = "修改失败";
   }
   res.send(return_mes);
 })

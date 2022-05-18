@@ -26,25 +26,56 @@ async function find(outside, message) {
 async function fuzzyfind(outside, message, begin, pageSize) {
     let sqlstr = `select * from ` + outside;
     let sql1 = ``;
-    sqlstr = `select top ` + pageSize + ` * from ` + outside
+    sqlstr = `select top ` + pageSize + ` * from ` + outside;
+    let flag1 = 0;
     if (message && Object.keys(message).length != 0) {
         sql1 = ` where `;
         Object.keys(message).forEach((key) => {
             if (sql1 != ` where `) sql1 += ` and `;
             sql1 = sql1 + key + ` like '%` + message[key] + `%'`;
         })
+        flag1 = 1;
+        sqlstr = sqlstr + sql1 + ' and';
     }
-    sqlstr = sqlstr + sql1;
     if (!sql1) {
         sqlstr += ` where`;
     }
     sqlstr += ` id not in (select top ` + begin + ` id from ` + outside + sql1 + `)`;
-    // console.log(sqlstr)
     var data = {};
     try {
         data = await db(sqlstr);
     } catch (err) {
         save.save(err.message, "db");
+    }
+    return data;
+}
+
+// Number of fuzzy searches based on information
+async function fuzzyfindNumber(outside, message, begin, pageSize) {
+    let sqlstr = `select count(id) from ` + outside;
+    let sql1 = ``;
+    let flag1 = 0;
+    if (message && Object.keys(message).length != 0) {
+        sql1 = ` where `;
+        Object.keys(message).forEach((key) => {
+            if (sql1 != ` where `) sql1 += ` and `;
+            sql1 = sql1 + key + ` like '%` + message[key] + `%'`;
+        })
+        flag1 = 1;
+        sqlstr = sqlstr + sql1;
+    }
+    var data = {};
+    console.log(sqlstr);
+    try {
+        data = await db(sqlstr);
+    } catch (err) {
+        save.save(err.message, "db");
+    }
+    if(data.length > 0){
+        data = Object.values(data[0])[0]
+    }
+    else{
+        data = 0;
     }
     return data;
 }
@@ -75,7 +106,7 @@ async function update(outside, target, message) {
         sql2 = ``;
     Object.keys(message).forEach((key) => {
         if (sql1 != ``) sql1 += `,`;
-        sql1 = sql1 + key + `=` + message[key] + ``;
+        sql1 = sql1 + key + `='` + message[key] + `'`;
     })
     Object.keys(target).forEach((key) => {
         if (sql2 != ``) sql2 += ` AND `;
@@ -83,7 +114,6 @@ async function update(outside, target, message) {
     })
     sql2 = ` where ` + sql2;
     sqlstr = sqlstr + sql1 + sql2;
-    // console.log(sqlstr);
     try {
         await db(sqlstr);
     } catch (err) {
@@ -108,3 +138,4 @@ module.exports.add = add
 module.exports.update = update
 module.exports.delect = delect
 module.exports.fuzzyfind = fuzzyfind
+module.exports.fuzzyfindNumber = fuzzyfindNumber

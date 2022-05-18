@@ -29,17 +29,31 @@ router.get('/', async function (req, res, next) {
 
     // query data base
     let data = [];
+    let dataNumber = 0;
     try {
         data = await db.fuzzyfind(search_message.table, condition, begin, pageSize);
+        dataNumber = await db.fuzzyfindNumber(search_message.table, condition, begin, pageSize);
     } catch (err) {
         save.save(err , "search");
         return_mes.state = -3;
     }
     if (data.length != 0) {
         return_mes.state = 200;
+        // Processing format
+        data.forEach(item => {
+            if(item.sex == 'N'){
+                item.sex = "男";
+            }
+            else{
+                item.sex = "女";
+            }
+            item.registe_time = item.registe_time.toISOString().replace('T' , ' ').replace('Z','')
+        })
         return_mes.data.message = data;
+        return_mes.data.messageNumber = dataNumber;
     } else if(return_mes.state != -3){
         return_mes.state = -1;
+        return_mes.data.cause = "未查询到相关信息";
     }
     res.send(return_mes);
 })
