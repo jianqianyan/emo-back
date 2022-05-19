@@ -1,5 +1,6 @@
 var mssql = require(`mssql`);
 var config = require('../../settingConfig/sqlConfig')
+const save = require("../saveMessage/saveMessage")
 const fs = require('fs');
 var dbConfig = {
     user: ``, //用户名
@@ -26,10 +27,10 @@ var db = async (sqlstr) => {
         return result.recordset;
     } catch (err) {
         // 请求失败
-        console.log(err);
+        save.save(err.message , "baseDb");
         if (err.name == "RequestError")
-            return -1;
-        return -2;
+            return [];
+        return [];
     }
 }
 module.exports = db

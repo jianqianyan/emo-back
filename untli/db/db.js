@@ -65,7 +65,6 @@ async function fuzzyfindNumber(outside, message, begin, pageSize) {
         sqlstr = sqlstr + sql1;
     }
     var data = {};
-    console.log(sqlstr);
     try {
         data = await db(sqlstr);
     } catch (err) {
