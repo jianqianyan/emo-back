@@ -4,7 +4,10 @@ function getsqlDate(){
     let year = nowData.getFullYear();
     let month = nowData.getMonth() + 1;
     let day = nowData.getDate();
-    let sqlDate = year + '-' + month + '-' + day ;
+    let hour = nowData.getHours();
+    let min = nowData.getMinutes();
+    let sec = nowData.getSeconds();
+    let sqlDate = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
     return sqlDate;
 }
 function checkIsNull(obj){

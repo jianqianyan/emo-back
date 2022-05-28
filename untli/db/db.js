@@ -1,9 +1,9 @@
 var db = require(`./sqlsever`);
 const save = require("../saveMessage/saveMessage")
 
-// 从outside里根据message精确查找
-async function find(outside, message) {
-    let sqlstr = `select * from ` + outside;
+// 从table里根据message精确查找
+async function find(table, message) {
+    let sqlstr = `select * from ` + table;
     if (message) {
         sqlstr += ` where `
         let sql1 = ``;
@@ -22,11 +22,11 @@ async function find(outside, message) {
     return data;
 }
 
-// Fuzzy search from outside according to message , from begin to begin + n
-async function fuzzyfind(outside, message, begin, pageSize) {
-    let sqlstr = `select * from ` + outside;
+// Fuzzy search from table according to message , from begin to begin + n
+async function fuzzyfind(table, message, begin = 0, pageSize = 10) {
+    let sqlstr = `select * from ` + table;
     let sql1 = ``;
-    sqlstr = `select top ` + pageSize + ` * from ` + outside;
+    sqlstr = `select top ` + pageSize + ` * from ` + table;
     let flag1 = 0;
     if (message && Object.keys(message).length != 0) {
         sql1 = ` where `;
@@ -40,7 +40,7 @@ async function fuzzyfind(outside, message, begin, pageSize) {
     if (!sql1) {
         sqlstr += ` where`;
     }
-    sqlstr += ` id not in (select top ` + begin + ` id from ` + outside + sql1 + `)`;
+    sqlstr += ` id not in (select top ` + begin + ` id from ` + table + sql1 + `)`;
     var data = {};
     try {
         data = await db(sqlstr);
@@ -51,8 +51,8 @@ async function fuzzyfind(outside, message, begin, pageSize) {
 }
 
 // Number of fuzzy searches based on information
-async function fuzzyfindNumber(outside, message, begin, pageSize) {
-    let sqlstr = `select count(id) from ` + outside;
+async function fuzzyfindNumber(table, message, begin = 0, pageSize = 10) {
+    let sqlstr = `select count(id) from ` + table;
     let sql1 = ``;
     let flag1 = 0;
     if (message && Object.keys(message).length != 0) {
@@ -79,10 +79,10 @@ async function fuzzyfindNumber(outside, message, begin, pageSize) {
     return data;
 }
 
-// 插入数据 往表outside中插入数据message
-async function add(outside, message) {
+// 插入数据 往表table中插入数据message
+async function add(table, message) {
     // 拼接字符串
-    let sqlstr = `insert into ` + outside + `(`;
+    let sqlstr = `insert into ` + table + `(`;
     let sql1 = ``,
         sql2 = ``;
     Object.keys(message).forEach((key) => {
@@ -92,15 +92,20 @@ async function add(outside, message) {
         sql2 = sql2 + `'` + message[key] + `'`;
     })
     sqlstr = sqlstr + sql1 + `) values(` + sql2 + `);`;
-    var data = 0;
-    data = await db(sqlstr);
-    // console.log(data);
+    let data = 0;
+    try{
+        data = await db(sqlstr);
+    }
+    catch(err){
+        save.save(err.message , "db");
+    }
+    
     return data;
 }
 
-// 更改数据 更改表outside中条件满足target的message数据
-async function update(outside, target, message) {
-    let sqlstr = `update ` + outside + ` set `;
+// 更改数据 更改表table中条件满足target的message数据
+async function update(table, target, message) {
+    let sqlstr = `update ` + table + ` set `;
     let sql1 = ``,
         sql2 = ``;
     Object.keys(message).forEach((key) => {
@@ -121,20 +126,68 @@ async function update(outside, target, message) {
 }
 
 // 删除数据 在表ouside中删除根据message删除数据
-async function delect(outside, message) {
-    let sqlstr = `delect from ` + outside + ` where `;
-    let sql1 = ``;
-    Object.keys(message).forEach((key) => {
-        if (sql1 != ``) sql1 += ` AND `;
-        sql1 = sql1 + key + `=` + message[key] + ``;
-    })
-    sqlstr = sqlstr + sql1;
-    console.log(sqlstr);
+async function emoDelete(table, message) {
+    let sqlstr = `delete from ` + table;
+    
+    if(message){
+        let sql1 = ``;
+        sqlstr += ` where `;
+        Object.keys(message).forEach((key) => {
+            if (sql1 != ``) sql1 += ` AND `;
+            sql1 = sql1 + key + `=` + message[key] + ``;
+        })
+        sqlstr = sqlstr + sql1;
+    }
+    try{
+        await db(sqlstr);
+    }
+    catch(err){
+        save.save(err.message , "db");
+    }
 }
 
-module.exports.find = find
-module.exports.add = add
-module.exports.update = update
-module.exports.delect = delect
-module.exports.fuzzyfind = fuzzyfind
-module.exports.fuzzyfindNumber = fuzzyfindNumber
+// Count the number in the table according to the condition
+async function count(table , condition){
+    let sqlstr = `select count(*) from ` + table ;
+    
+    if(condition){
+        let sql1 = ``;
+        sqlstr += ` where `;
+        Object.keys(condition).forEach((key) => {
+            if(sql1 != ``) sql1 += ` AND `;
+            slq1 += key + `=` + condition[key] + ``;
+        })
+        sqlstr += sql1;
+    }
+    let data = [];
+    try{
+        data = await db(sqlstr);
+    }
+    catch(err){
+        save.save(err.message , "db");
+    }
+    return data;
+}
+
+// query with sqlstr 
+async function linkQuery(sqlstr){
+    let data = [];
+    try{
+        data = await db(sqlstr);
+    }
+    catch(err){
+        save.save(err.message , "db");
+    }
+    return data;
+}
+
+module.exports = {
+    fuzzyfindNumber,
+    fuzzyfind,
+    emoDelete,
+    update,
+    add,
+    find,
+    count,
+    linkQuery
+}

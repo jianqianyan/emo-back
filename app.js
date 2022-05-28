@@ -12,6 +12,10 @@ var video = require('./routes/video');
 var img_code = require('./routes/imgCode');
 var getVideo = require('./routes/getVideo');
 var search = require('./routes/search')
+var change = require('./routes/change');
+var admin = require('./routes/admin');
+var updata = require('./routes/updata');
+var getIndex = require('./routes/getIndex');
 
 var app = express();
 
@@ -85,6 +89,10 @@ app.use('/mail', mailRouter);
 app.use('/users', usersRouter);
 app.use('/getVideo', getVideo);
 app.use('/search', search);
+app.use('/change' , change);
+app.use('/admin' , admin);
+app.use('/updata' , updata);
+app.use('/getIndex' , getIndex);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -92,7 +100,7 @@ app.use(function (req, res, next) {
 });
 
 // 处理token不合法或过期 
-const errorhandler = require('./middleware/errorhandler')
+const errorhandler = require('./middleware/errorhandler');
 app.use(errorhandler)
 
 // error handler
