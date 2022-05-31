@@ -21,6 +21,7 @@ var dbConfig = {
 
 var db = async (sqlstr) => {
     dbConfig = config;
+    console.log(sqlstr);
     try {
         await mssql.connect(dbConfig);
         const result = await mssql.query(sqlstr)

@@ -7,7 +7,7 @@ const videoCount = require("../service/videoService");
 // 流式传输视频
 router.get('/', async function (req, res, next) {
     let path = req.query.path;
-    let filePath = './assets/video/' + path;
+    let filePath = './assets/image/' + path;
     try {
         let stat = fs.statSync(filePath);
         let fileSize = stat.size;

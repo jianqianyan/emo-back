@@ -2,17 +2,24 @@ var db = require(`./sqlsever`);
 const save = require("../saveMessage/saveMessage")
 
 // 从table里根据message精确查找
-async function find(table, message) {
+async function find(table, message, begin = 0, pageSize = 10) {
     let sqlstr = `select * from ` + table;
-    if (message) {
-        sqlstr += ` where `
-        let sql1 = ``;
+    let flag1 = 0;
+    sqlstr = `select top ` + pageSize + ` * from ` + table;
+    let sql1 = ``;
+    if (message && Object.keys(message).length != 0) {
+        sql1 = ` where `;
         Object.keys(message).forEach((key) => {
-            if (sql1 != ``) sql1 += ` and `;
+            if (sql1 != ` where `) sql1 += ` and `;
             sql1 = sql1 + key + `='` + message[key] + `'`;
         })
-        sqlstr = sqlstr + sql1;
+        flag1 = 1;
+        sqlstr = sqlstr + sql1 + ' and';
     }
+    if (!sql1) {
+        sqlstr += ' where';
+    }
+    sqlstr += ` id not in (select top ` + begin + ` id from ` + table + sql1 + `)`;
     var data = {};
     try {
         data = await db(sqlstr);
@@ -22,19 +29,43 @@ async function find(table, message) {
     return data;
 }
 
+// Number of searches based on information
+async function findNumber(table, message, begin = 0, pageSize = 10) {
+    let sqlstr = `select count(id) from ` + table;
+    let sql1 = ``;
+    if (message && Object.keys(message).length != 0) {
+        sql1 = ` where `;
+        Object.keys(message).forEach((key) => {
+            if (sql1 != ` where `) sql1 += ` and `;
+            sql1 += key + ` = '` + message[key] + `'`;
+        })
+        sqlstr = sqlstr + sql1;
+    }
+    var data = [];
+    try {
+        data = await db(sqlstr);
+    } catch (err) {
+        save.save(err.message, "db");
+    }
+    if (data.length > 0) {
+        data = Object.values(data[0])[0]
+    } else {
+        data = 0;
+    }
+    return data;
+}
+
 // Fuzzy search from table according to message , from begin to begin + n
 async function fuzzyfind(table, message, begin = 0, pageSize = 10) {
     let sqlstr = `select * from ` + table;
     let sql1 = ``;
     sqlstr = `select top ` + pageSize + ` * from ` + table;
-    let flag1 = 0;
     if (message && Object.keys(message).length != 0) {
         sql1 = ` where `;
         Object.keys(message).forEach((key) => {
             if (sql1 != ` where `) sql1 += ` and `;
             sql1 = sql1 + key + ` like '%` + message[key] + `%'`;
         })
-        flag1 = 1;
         sqlstr = sqlstr + sql1 + ' and';
     }
     if (!sql1) {
@@ -54,14 +85,12 @@ async function fuzzyfind(table, message, begin = 0, pageSize = 10) {
 async function fuzzyfindNumber(table, message, begin = 0, pageSize = 10) {
     let sqlstr = `select count(id) from ` + table;
     let sql1 = ``;
-    let flag1 = 0;
     if (message && Object.keys(message).length != 0) {
         sql1 = ` where `;
         Object.keys(message).forEach((key) => {
             if (sql1 != ` where `) sql1 += ` and `;
             sql1 = sql1 + key + ` like '%` + message[key] + `%'`;
         })
-        flag1 = 1;
         sqlstr = sqlstr + sql1;
     }
     var data = {};
@@ -70,10 +99,9 @@ async function fuzzyfindNumber(table, message, begin = 0, pageSize = 10) {
     } catch (err) {
         save.save(err.message, "db");
     }
-    if(data.length > 0){
+    if (data.length > 0) {
         data = Object.values(data[0])[0]
-    }
-    else{
+    } else {
         data = 0;
     }
     return data;
@@ -93,13 +121,12 @@ async function add(table, message) {
     })
     sqlstr = sqlstr + sql1 + `) values(` + sql2 + `);`;
     let data = 0;
-    try{
+    try {
         data = await db(sqlstr);
+    } catch (err) {
+        save.save(err.message, "db");
     }
-    catch(err){
-        save.save(err.message , "db");
-    }
-    
+
     return data;
 }
 
@@ -128,8 +155,8 @@ async function update(table, target, message) {
 // 删除数据 在表ouside中删除根据message删除数据
 async function emoDelete(table, message) {
     let sqlstr = `delete from ` + table;
-    
-    if(message){
+
+    if (message) {
         let sql1 = ``;
         sqlstr += ` where `;
         Object.keys(message).forEach((key) => {
@@ -138,45 +165,42 @@ async function emoDelete(table, message) {
         })
         sqlstr = sqlstr + sql1;
     }
-    try{
+    try {
         await db(sqlstr);
-    }
-    catch(err){
-        save.save(err.message , "db");
+    } catch (err) {
+        save.save(err.message, "db");
     }
 }
 
 // Count the number in the table according to the condition
-async function count(table , condition){
-    let sqlstr = `select count(*) from ` + table ;
-    
-    if(condition){
+async function count(table, condition) {
+    let sqlstr = `select count(*) from ` + table;
+
+    if (condition) {
         let sql1 = ``;
         sqlstr += ` where `;
         Object.keys(condition).forEach((key) => {
-            if(sql1 != ``) sql1 += ` AND `;
+            if (sql1 != ``) sql1 += ` AND `;
             slq1 += key + `=` + condition[key] + ``;
         })
         sqlstr += sql1;
     }
     let data = [];
-    try{
+    try {
         data = await db(sqlstr);
-    }
-    catch(err){
-        save.save(err.message , "db");
+    } catch (err) {
+        save.save(err.message, "db");
     }
     return data;
 }
 
 // query with sqlstr 
-async function linkQuery(sqlstr){
+async function linkQuery(sqlstr) {
     let data = [];
-    try{
+    try {
         data = await db(sqlstr);
-    }
-    catch(err){
-        save.save(err.message , "db");
+    } catch (err) {
+        save.save(err.message, "db");
     }
     return data;
 }
@@ -189,5 +213,6 @@ module.exports = {
     add,
     find,
     count,
-    linkQuery
+    linkQuery,
+    findNumber
 }

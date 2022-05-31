@@ -16,6 +16,7 @@ var change = require('./routes/change');
 var admin = require('./routes/admin');
 var updata = require('./routes/updata');
 var getIndex = require('./routes/getIndex');
+var upsVideo = require('./routes/upsVideo');
 
 var app = express();
 
@@ -93,6 +94,7 @@ app.use('/change' , change);
 app.use('/admin' , admin);
 app.use('/updata' , updata);
 app.use('/getIndex' , getIndex);
+app.use('/upsVideo' , upsVideo);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

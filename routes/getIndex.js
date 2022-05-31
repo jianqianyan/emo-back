@@ -9,7 +9,7 @@ router.get('/', async function (req, res, next) {
     let return_mes = new returnMessage();
     let table = "video_recommend";
     // Get recommendation list
-    let data = await db.find(table);
+    let data = await db.find(table, {} , 0 , 15);
     return_mes.data.message = [];
     // Get corresponding video information
     for (var item of data) {
