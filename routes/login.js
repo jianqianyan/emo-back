@@ -12,6 +12,7 @@ router.post('/', async function (req, res, next) {
   let login_message = req.body;
   let user = [];
   var return_mes = new returnMessage();
+  console.log(req.sessionID);
   // password phone img_node can not be null
   if(untli.checkIsNull(login_message.phone) || untli.checkIsNull(login_message.password) || untli.checkIsNull(login_message.img_code)){
     return_mes.state = -1;
