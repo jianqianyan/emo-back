@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 var config = require("../../settingConfig/mailConfig");
 
 // 邮件验证方法
-async function mail(userMail , img_code) {
+async function mail(userMail, subject = "[验证码]" , text = "[验证码]" , html = "【验证码】") {
     try{
       let transporter = nodemailer.createTransport({
         host: config.smtp,
@@ -15,11 +15,11 @@ async function mail(userMail , img_code) {
         },
       });
       let info = await transporter.sendMail({
-        from: `欸嘿 <` + config.mailFrom + `>`, // sender address
+        from: `<` + config.mailFrom + `>`, // sender address
         to: userMail, // list of receivers
-        subject: "[验证码]", // Subject line
-        text: "[验证码]" , // plain text body
-        html: "【验证码】" + img_code, // html body
+        subject: subject, // Subject line
+        text: text , // plain text body
+        html: html, // html body
       })
     }
     catch(err){

@@ -17,6 +17,7 @@ var admin = require('./routes/admin');
 var updata = require('./routes/updata');
 var getIndex = require('./routes/getIndex');
 var upsVideo = require('./routes/upsVideo');
+var contribution = require('./routes/contribution');
 
 var app = express();
 
@@ -36,7 +37,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 var cookieSession = require('cookie-session')
 app.use(cookieSession({
   name: 'session',
-  keys: ['key1', 'key2']
+  keys: ['key1', 'key2'],
 }))
 
 // 设置跨域头
@@ -95,6 +96,7 @@ app.use('/admin' , admin);
 app.use('/updata' , updata);
 app.use('/getIndex' , getIndex);
 app.use('/upsVideo' , upsVideo);
+app.use('/contribution', contribution);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

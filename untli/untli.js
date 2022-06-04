@@ -1,5 +1,5 @@
 // 将时间转换为sql格式时间
-function getsqlDate(){
+function getsqlDate() {
     let nowData = new Date();
     let year = nowData.getFullYear();
     let month = nowData.getMonth() + 1;
@@ -10,11 +10,22 @@ function getsqlDate(){
     let sqlDate = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
     return sqlDate;
 }
-function checkIsNull(obj){
-    if(typeof obj == "undefined"){
-        return true;
+
+function checkIsNull(obj) {
+    let ans = false;
+    if (Array.isArray(obj)) {
+        for (let i = 0; i < obj.length; ++i) {
+            if (typeof obj[i] == "undefined") {
+                ans = true;
+                break;
+            }
+        }
+    } else {
+        if (typeof obj == "undefined") {
+            ans = true;
+        }
     }
-    return false;
+    return ans;
 }
 
 module.exports.getsqlDate = getsqlDate;
