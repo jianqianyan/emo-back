@@ -50,8 +50,12 @@ router.post('/', async function (req, res, next) {
         return_mes.state = 200;
         return_mes.data.message.id = user[0].id;
         return_mes.data.message.name = user[0].name;
+        return_mes.data.message.name = user[0].path;
         if (checkIsNull(user[0].img_path)) {
-          return_mes.data.message.img_path = user[0].img_path;
+          return_mes.data.message.img_path = "http://81.68.212.237:3000/user_photo/" + user[0].img_path;
+        }
+        else{
+          return_mes.data.message.img_path = "http://81.68.212.237:3000/user_photo/1.jpg";
         }
         // token
         let token = setToken(return_mes.data);
