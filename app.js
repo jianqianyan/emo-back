@@ -18,6 +18,7 @@ var updata = require('./routes/updata');
 var getIndex = require('./routes/getIndex');
 var upsVideo = require('./routes/upsVideo');
 var contribution = require('./routes/contribution');
+var walking = require('./routes/walking');
 
 var app = express();
 
@@ -97,6 +98,7 @@ app.use('/updata' , updata);
 app.use('/getIndex' , getIndex);
 app.use('/upsVideo' , upsVideo);
 app.use('/contribution', contribution);
+app.use('/walking' , walking);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

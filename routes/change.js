@@ -25,12 +25,13 @@ router.post('/', async function (req, res, next) {
     // When modifying the recommendation information, 
     // check whether it can be modified
     if ((typeof condition.is_recommend).toString() != "undefined") {
-        if (await checkAddRecommedInfo(obj.id , condition.is_recommend)) {
+        if (table == "videos" && await checkAddRecommedInfo(obj.id , condition.is_recommend , 11)) {
             return_mes.state = -1;
             return_mes.data.cause = "推荐视频列表已满";
             res.send(return_mes);
             return ;
         }
+        
     }
     // try update
     try {
