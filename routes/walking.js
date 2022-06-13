@@ -5,7 +5,8 @@ const save = require("../untli/saveMessage/saveMessage")
 const returnMessage = require("../model/returnMessage")
 const {
     checkIsNull
-} = require("../untli/untli")
+} = require("../untli/untli");
+const { user } = require('../settingConfig/sqlConfig');
 
 router.post('/add', async function (req, res, next) {
     let return_mes = new returnMessage();
@@ -36,6 +37,32 @@ router.post('/add', async function (req, res, next) {
     }else{
         return_mes.state = 200;
         return_mes.data.message.info = "新建成功";
+    }
+    res.send(return_mes);
+})
+
+router.post('/change', async function(req , res , next){
+    // get message
+    let message = req.body;
+    let return_mes = new returnMessage();
+
+    // processing data
+    if(message.link == "null"){
+        delete message.link;
+    }
+    let data = {};
+    data.id = message.id;
+    delete message.id;
+    
+    // try updata
+    try{
+        await db.update("walkings" , data , message);
+        return_mes.state = 200;
+        return_mes.data.message = "修改成功";
+    }catch(err){
+        save.save(err);
+        return_mes.state = -1;
+        return_mes.data.cause = "修改失败";
     }
     res.send(return_mes);
 })
