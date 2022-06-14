@@ -131,13 +131,18 @@ async function add(table, message) {
 }
 
 // 更改数据 更改表table中条件满足target的message数据
-async function update(table, target, message) {
+async function update(table, target, message , flag = 0) {
     let sqlstr = `update ` + table + ` set `;
     let sql1 = ``,
         sql2 = ``;
     Object.keys(message).forEach((key) => {
         if (sql1 != ``) sql1 += `,`;
-        sql1 = sql1 + key + `='` + message[key] + `'`;
+        if(flag == 1){
+            sql1 = sql1 + key + `=` + message[key];
+        }
+        else{
+            sql1 = sql1 + key + `='` + message[key] + `'`;
+        }
     })
     Object.keys(target).forEach((key) => {
         if (sql2 != ``) sql2 += ` AND `;

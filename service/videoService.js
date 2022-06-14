@@ -7,7 +7,7 @@ function videoCount(id){
     let message = {
         views: "views + 1",
     }
-    db.update("videos" , target , message);
+    db.update("videos" , target , message, 1);
 }
 
 module.exports.videoCount = videoCount;

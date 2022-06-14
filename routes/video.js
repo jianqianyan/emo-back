@@ -3,6 +3,7 @@ var router = express.Router();
 const fs = require('fs');
 const db = require('../untli/db/db');
 const videoCount = require("../service/videoService");
+const { save } = require('../untli/saveMessage/saveMessage');
 
 // 流式传输视频
 router.get('/', async function (req, res, next) {
@@ -25,7 +26,7 @@ router.get('/', async function (req, res, next) {
                         "path": path
                     });
                 } catch (err) {
-                    console.log(err);
+                    save(err.message , "video");
                 }
                 // 这里可以加上对于已经被删除的视频的播放限制
                 if (video.length > 0) {
@@ -58,7 +59,7 @@ router.get('/', async function (req, res, next) {
             fs.createReadStream(filePath).pipe(res);
         }
     } catch (err) {
-        console.log(err);
+        save(err.message , "video");
     }
 })
 module.exports = router;

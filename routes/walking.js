@@ -28,7 +28,6 @@ router.get('/' , async function(req , res , next) {
         return_mes.cause = "查询失败";
         return_mes.state = -1;
     }
-    console.log(data);
     res.send(return_mes);
 })
 
