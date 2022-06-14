@@ -14,20 +14,21 @@ router.get('/' , async function(req , res , next) {
     let condition = {is_recommend: "1"};
     let data = [];
     try{
-        data = db.find(table , condition);
+        data = await db.find(table , condition);
     }
     catch(err){
         return_mes.state = -3;
         save.save(err.message);
     }
     if(data.length > 0){
-        return_mes.message = data;
+        return_mes.data.message = data;
         return_mes.state = 200;
     }
     else{
         return_mes.cause = "查询失败";
         return_mes.state = -1;
     }
+    console.log(data);
     res.send(return_mes);
 })
 
