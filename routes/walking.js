@@ -8,6 +8,29 @@ const {
 } = require("../untli/untli");
 const { user } = require('../settingConfig/sqlConfig');
 
+router.get('/' , async function(req , res , next) {
+    let return_mes = new returnMessage();
+    let table = "walkings";
+    let condition = {is_recommend: "1"};
+    let data = [];
+    try{
+        data = db.find(table , condition);
+    }
+    catch(err){
+        return_mes.state = -3;
+        save.save(err.message);
+    }
+    if(data.length > 0){
+        return_mes.message = data;
+        return_mes.state = 200;
+    }
+    else{
+        return_mes.cause = "查询失败";
+        return_mes.state = -1;
+    }
+    res.send(return_mes);
+})
+
 router.post('/add', async function (req, res, next) {
     let return_mes = new returnMessage();
     let message = req.body;
